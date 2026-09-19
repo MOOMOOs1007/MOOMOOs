@@ -17,7 +17,7 @@
         <div class="actions"><button id="draw" class="primary">♥ 뽑기</button><button id="reroll">↻ 다시 뽑기</button><button id="next">다음 항목 →</button></div>
       </section>
       <aside>
-        <section class="panel connection-panel"><div class="panel-head"><b>방송 연결</b><span id="collectState">대기</span></div><label class="field-label" for="streamer">SOOP 방송국 ID 또는 라이브 주소</label><input id="streamer" class="streamer" placeholder="https://play.sooplive.com/아이디/방송번호" autocomplete="off"><div class="connection-footer"><p id="status" class="hint" role="status">주소를 입력하고 방송에 연결해 주세요.</p><button id="connect" class="connect-button">방송 연결</button></div></section>
+        <section class="panel connection-panel"><div class="panel-head"><div class="connection-title"><b>방송 연결</b><span id="collectState">대기</span></div><button id="connect" class="connect-button">방송 연결</button></div><label class="field-label" for="streamer">SOOP 방송국 ID 또는 라이브 주소</label><input id="streamer" class="streamer" placeholder="https://play.sooplive.com/아이디/방송번호" autocomplete="off"><div class="connection-footer"><p id="status" class="hint" role="status">주소를 입력하고 방송에 연결해 주세요.</p><button id="collect" class="collect-button">채팅 수집</button></div></section>
         <section class="panel list-panel candidate-panel"><div class="panel-head"><b>모인 채팅 <span id="count">0</span></b><button id="clear" class="link">비우기</button></div><div id="candidates" class="candidates"><p>아직 모인 채팅이 없어요 ♡</p></div></section>
         <button id="demo" class="wide setup-only">테스트 후보 채우기</button>
       </aside>
