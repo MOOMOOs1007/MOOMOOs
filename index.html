@@ -10,7 +10,7 @@
 </head>
 <body>
   <main>
-    <header><div><b>✦ 환생 룰렛</b><small>REBIRTH RANDOMIZER</small></div><span id="round">ROUND 01</span></header>
+    <header><div><b>✦ 환생 룰렛</b><small>REBIRTH RANDOMIZER</small></div><div class="header-meta"><span id="streamerName">방송 연결 대기</span><span id="round">ROUND 01</span><a class="broadcast-link" href="?overlay=1" target="_blank" rel="noopener">방송용 화면 ↗</a></div></header>
     <section class="intro"><div><p>NEXT LIFE GENERATOR</p><h1>다음 생은,<br><em>여러분 손에.</em></h1></div><button id="resetAll" class="ghost">전체 초기화</button></section>
     <div class="layout">
       <section class="game">
@@ -23,19 +23,19 @@
         <div class="actions"><button id="draw" class="primary">✦ 뽑기</button><button id="reroll">↻ 리롤</button><button id="next">다음 항목 →</button></div>
       </section>
       <aside>
-        <section class="panel">
+        <section class="panel connection-panel">
           <div class="panel-head"><b>SOOP 채팅 수집</b><span id="collectState">대기</span></div>
           <label class="field-label" for="streamer">방송국 ID 또는 라이브 주소</label>
           <input id="streamer" class="streamer" placeholder="https://play.sooplive.com/아이디/방송번호" autocomplete="off">
           <button id="collect" class="collect">30초 자동 수집</button>
           <p id="status" class="hint" role="status">방송 주소를 입력한 뒤 수집을 시작하세요.</p>
         </section>
-        <section class="panel list-panel">
+        <section class="panel list-panel candidate-panel">
           <div class="panel-head"><b>후보 <span id="count">0</span></b><button id="clear" class="link">비우기</button></div>
           <div id="candidates" class="candidates"><p>수집을 시작해 주세요.</p></div>
         </section>
-        <button id="demo" class="wide">테스트 후보 넣기</button>
-        <p class="footnote">SOOP 연결이 어려울 때 테스트 후보로 룰렛 동작을 확인할 수 있습니다.</p>
+        <button id="demo" class="wide setup-only">테스트 후보 넣기</button>
+        <p class="footnote setup-only">SOOP 연결이 어려울 때 테스트 후보로 룰렛 동작을 확인할 수 있습니다.</p>
       </aside>
     </div>
   </main>
