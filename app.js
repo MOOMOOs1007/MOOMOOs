@@ -33,7 +33,7 @@ function add(id,name,text){
 async function startCollection(){
  if(state.connecting||state.collecting||state.rolling)return;
  const streamer=$('streamer').value.trim();if(!streamer)return toast('SOOP 방송국 ID나 라이브 주소를 입력해 주세요.');
- const token=++generation;controller=new AbortController();state.pools[state.active].clear();state.results[state.active]=null;state.connecting=true;state.status='방송 정보를 확인하고 있어요…';openModal('collect');render();
+ const token=++generation;controller=new AbortController();state.pools[state.active].clear();state.results[state.active]=null;state.connecting=true;state.status='방송 정보를 확인하고 있어요…';render();
  try{
   const response=await fetch('/api/chat',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({streamer}),signal:controller.signal});
   if(!response.ok){let message='수집 요청에 실패했습니다.';try{message=(await response.json()).error||message}catch{}throw Error(message)}
@@ -44,11 +44,11 @@ async function startCollection(){
     if(event.type==='status')state.status=event.message;
     if(event.type==='entered'){state.connecting=false;state.collecting=true;state.until=Date.now()+Number(event.duration||30)*1000;state.streamerName=event.streamerName||event.streamer||'';state.connectedStreamer=event.streamer||streamer;state.status=event.message}
     if(event.type==='chat')add(event.id,event.name,event.text);
-    if(event.type==='done'){state.connecting=false;state.collecting=false;state.until=0;state.status=state.pools[state.active].size?`${event.message} · ${state.pools[state.active].size}개 수집`:'수집된 채팅이 없어요. 다시 시도해 주세요.';$('modalTitle').textContent='채팅 수집이 끝났어요!';$('modalSubtitle').textContent=state.pools[state.active].size?'모인 채팅에서 뽑기 버튼을 눌러 주세요.':'방송 채팅이 올라올 때 다시 수집해 주세요.';render();setTimeout(closeModal,1200)}
+    if(event.type==='done'){state.connecting=false;state.collecting=false;state.until=0;state.status=state.pools[state.active].size?`${event.message} · ${state.pools[state.active].size}개 수집`:'수집된 채팅이 없어요. 다시 시도해 주세요.';render()}
     if(event.type==='error')throw Error(event.message);render();
    }
   }
- }catch(error){if(token!==generation||error.name==='AbortError')return;state.status=error.message;$('modalStatus').textContent=error.message;toast(error.message)}
+ }catch(error){if(token!==generation||error.name==='AbortError')return;state.status=error.message;toast(error.message)}
  finally{if(token===generation){state.connecting=false;state.collecting=false;state.until=0;controller=null;render()}}
 }
 
