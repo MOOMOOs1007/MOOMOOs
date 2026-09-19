@@ -1,0 +1,10 @@
+{
+  "name": "soop-rebirth-roulette",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": "24.x" },
+  "scripts": { "start": "vercel dev", "test": "node --test" },
+  "dependencies": { "ws": "8.18.3" },
+  "devDependencies": { "vercel": "latest" }
+}

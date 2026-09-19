@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="채팅으로 완성하는 환생 조건 룰렛">
+  <title>환생 룰렛</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="vercel.css">
+</head>
+<body>
+  <main>
+    <header><div><b>✦ 환생 룰렛</b><small>REBIRTH RANDOMIZER</small></div><span id="round">ROUND 01</span></header>
+    <section class="intro"><div><p>NEXT LIFE GENERATOR</p><h1>다음 생은,<br><em>여러분 손에.</em></h1></div><button id="resetAll" class="ghost">전체 초기화</button></section>
+    <div class="layout">
+      <section class="game">
+        <div class="game-head"><b>나의 환생 조건</b><span id="progress">0 / 5 확정</span></div>
+        <div id="cards"></div>
+        <div class="roulette">
+          <div class="roulette-head"><span id="reelLabel">나라 · 채팅 룰렛</span><span id="timer">30초 수집 → 뽑기</span></div>
+          <div class="reel-window"><span class="pointer">▶</span><div id="reelTrack"><div class="reel-item">채팅을 수집해 주세요</div></div></div>
+        </div>
+        <div class="actions"><button id="draw" class="primary">✦ 뽑기</button><button id="reroll">↻ 리롤</button><button id="next">다음 항목 →</button></div>
+      </section>
+      <aside>
+        <section class="panel">
+          <div class="panel-head"><b>SOOP 채팅 수집</b><span id="collectState">대기</span></div>
+          <label class="field-label" for="streamer">방송국 ID 또는 라이브 주소</label>
+          <input id="streamer" class="streamer" placeholder="https://play.sooplive.com/아이디/방송번호" autocomplete="off">
+          <button id="collect" class="collect">30초 자동 수집</button>
+          <p id="status" class="hint" role="status">방송 주소를 입력한 뒤 수집을 시작하세요.</p>
+        </section>
+        <section class="panel list-panel">
+          <div class="panel-head"><b>후보 <span id="count">0</span></b><button id="clear" class="link">비우기</button></div>
+          <div id="candidates" class="candidates"><p>수집을 시작해 주세요.</p></div>
+        </section>
+        <button id="demo" class="wide">테스트 후보 넣기</button>
+        <p class="footnote">SOOP 연결이 어려울 때 테스트 후보로 룰렛 동작을 확인할 수 있습니다.</p>
+      </aside>
+    </div>
+  </main>
+  <div id="toast" role="alert"></div>
+  <script src="app.js"></script>
+</body>
+</html>
