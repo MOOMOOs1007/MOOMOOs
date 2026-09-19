@@ -16,6 +16,10 @@ async function discover(streamer){
 }
 export default async function handler(req,res){
  if(req.method!=='POST'){res.setHeader('Allow','POST');return res.status(405).json({error:'POST만 지원합니다.'});}
+ if(req.body?.mode==='info'){
+  try{const streamer=parseStreamer(req.body?.streamer);const {streamerName}=await discover(streamer);return res.status(200).json({streamer,streamerName});}
+  catch(error){return res.status(400).json({error:error?.message||'방송 정보를 확인하지 못했습니다.'});}
+ }
  res.setHeader('Content-Type','application/x-ndjson; charset=utf-8');res.setHeader('Cache-Control','no-cache, no-store');res.setHeader('X-Accel-Buffering','no');res.flushHeaders?.();
  let socket,deadline,collectionTimer,finished=false,entered=false;
  const finish=(type,message)=>{if(finished)return;finished=true;clearTimeout(deadline);clearTimeout(collectionTimer);send(res,{type,message});try{socket?.close();}catch{}res.end();};

@@ -1,5 +1,5 @@
 const fields=['나라','성별','재산','가정 환경','재능'];
-const state={active:0,round:1,results:Array(5).fill(null),pools:Array.from({length:5},()=>new Map()),connecting:false,collecting:false,until:0,rolling:false,streamerName:'',status:'주소를 입력하고 뽑기를 누르면 30초 동안 채팅을 모아요.'};
+const state={active:0,round:1,results:Array(5).fill(null),pools:Array.from({length:5},()=>new Map()),checking:false,connecting:false,collecting:false,until:0,rolling:false,streamerName:'',connectedStreamer:'',status:'주소를 입력하고 방송에 연결해 주세요.'};
 const $=id=>document.getElementById(id);
 const isOverlay=new URLSearchParams(location.search).has('overlay');
 const syncKey='rebirth-roulette-live-v1';
@@ -9,7 +9,7 @@ const sample=[['대한민국','아이슬란드','달나라','고양이 왕국'],
 
 if(isOverlay)document.body.classList.add('overlay');
 
-function snapshot(){return {active:state.active,round:state.round,results:state.results,pools:state.pools.map(pool=>[...pool.values()]),connecting:state.connecting,collecting:state.collecting,until:state.until,rolling:state.rolling,streamerName:state.streamerName,status:state.status}}
+function snapshot(){return {active:state.active,round:state.round,results:state.results,pools:state.pools.map(pool=>[...pool.values()]),checking:state.checking,connecting:state.connecting,collecting:state.collecting,until:state.until,rolling:state.rolling,streamerName:state.streamerName,connectedStreamer:state.connectedStreamer,status:state.status}}
 function publish(){if(isOverlay)return;const data=JSON.stringify(snapshot());try{localStorage.setItem(syncKey,data)}catch{}syncChannel?.postMessage(data)}
 function applySnapshot(data){if(!isOverlay)return;try{const next=typeof data==='string'?JSON.parse(data):data;if(!next||!Array.isArray(next.pools))return;Object.assign(state,next,{pools:next.pools.map(list=>new Map(list.map(item=>[item.id,item])))});render()}catch{}}
 function toast(text){$('toast').textContent=text;$('toast').style.display='block';clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').style.display='none',3000)}
@@ -30,9 +30,18 @@ function add(id,name,text){
  const pool=state.pools[state.active];if(pool.size>=2000&&!pool.has(id))return;pool.set(id,{id,name:String(name||'시청자').slice(0,40),text});render();
 }
 
+async function connectBroadcast(){
+ if(state.checking||state.connecting||state.collecting||state.rolling)return;
+ const value=$('streamer').value.trim();if(!value)return toast('SOOP 방송국 ID나 라이브 주소를 입력해 주세요.');
+ state.checking=true;state.streamerName='';state.connectedStreamer='';state.status='방송 정보를 확인하고 있어요…';render();
+ try{const response=await fetch('/api/chat',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({streamer:value,mode:'info'})});const data=await response.json();if(!response.ok)throw Error(data.error||'방송 연결에 실패했습니다.');state.streamerName=data.streamerName;state.connectedStreamer=data.streamer;state.status=`${data.streamerName} 방송에 연결됐어요.`;toast(`${data.streamerName} 방송 연결 완료!`)}
+ catch(error){state.status=error.message;toast(error.message)}finally{state.checking=false;render()}
+}
+
 async function startCollection(){
  if(state.connecting||state.collecting||state.rolling)return;
  const streamer=$('streamer').value.trim();if(!streamer)return toast('SOOP 방송국 ID나 라이브 주소를 입력해 주세요.');
+ if(!state.streamerName||!state.connectedStreamer)return toast('먼저 방송 연결 버튼을 눌러 주세요.');
  const token=++generation;controller=new AbortController();state.pools[state.active].clear();state.results[state.active]=null;state.connecting=true;state.status='방송 정보를 확인하고 있어요…';openModal('collect');render();
  try{
   const response=await fetch('/api/chat',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({streamer}),signal:controller.signal});
@@ -70,9 +79,9 @@ function escapeHtml(value){const d=document.createElement('div');d.textContent=v
 function candidateRows(pool,removable=true){return pool.slice().reverse().map(x=>{const row=document.createElement('div');row.className='candidate';const d=document.createElement('div'),n=document.createElement('b'),p=document.createElement('p');n.textContent=x.name;p.textContent=x.text;d.append(n,p);row.append(d);if(removable){const del=document.createElement('button');del.textContent='×';del.disabled=state.connecting||state.collecting||state.rolling||isOverlay;del.onclick=()=>{state.pools[state.active].delete(x.id);state.results[state.active]=null;render()};row.append(del)}return row})}
 
 function render(){
- const pool=[...state.pools[state.active].values()],result=state.results[state.active],done=state.results.filter(Boolean).length,busy=state.connecting||state.collecting||state.rolling;
- $('round').textContent='ROUND '+String(state.round).padStart(2,'0');$('streamerName').textContent=state.streamerName?state.streamerName+' 방송':'방송 연결 대기';$('progress').textContent=done+' / 5 완성';$('count').textContent=pool.length;$('status').textContent=state.status;$('collectState').textContent=state.connecting?'연결 중':state.collecting?'수집 중':state.rolling?'추첨 중':'대기';
- $('draw').disabled=busy||isOverlay;$('reroll').disabled=busy||isOverlay||!pool.length||!result;$('next').disabled=busy||isOverlay||done===5;$('clear').disabled=busy||isOverlay;$('demo').disabled=busy||isOverlay;
+ const pool=[...state.pools[state.active].values()],result=state.results[state.active],done=state.results.filter(Boolean).length,busy=state.checking||state.connecting||state.collecting||state.rolling;
+ $('round').textContent='ROUND '+String(state.round).padStart(2,'0');$('streamerName').textContent=state.streamerName?state.streamerName+' 방송 연결됨':'방송 연결 대기';$('progress').textContent=done+' / 5 완성';$('count').textContent=pool.length;$('status').textContent=state.status;$('collectState').textContent=state.checking?'확인 중':state.connecting?'입장 중':state.collecting?'수집 중':state.rolling?'추첨 중':state.streamerName?'연결됨':'대기';
+ $('connect').disabled=busy||isOverlay;$('connect').textContent=state.checking?'확인 중…':state.streamerName?'✓ 연결됨':'방송 연결';$('connect').classList.toggle('connected',!!state.streamerName);$('draw').disabled=busy||isOverlay||!state.streamerName;$('reroll').disabled=busy||isOverlay||!pool.length||!result;$('next').disabled=busy||isOverlay||done===5;$('clear').disabled=busy||isOverlay;$('demo').disabled=busy||isOverlay;
  $('cards').replaceChildren(...fields.map((f,i)=>{const b=document.createElement('button'),r=state.results[i];b.className='card '+(i===state.active?'active ':'')+(r?'done':'');b.disabled=busy||isOverlay;b.onclick=()=>{state.active=i;render()};b.innerHTML=`<span class="num">${String(i+1).padStart(2,'0')}</span><b>${f}</b>`;const v=document.createElement('div');v.className='value '+(!r?'pending':'');v.textContent=r?.text||(i===state.active?'채팅으로 운명을 정해 보세요':'아직 정해지지 않았어요');if(r){const n=document.createElement('small');n.textContent=viewerName(r.name);v.append(n)}b.append(v,document.createTextNode(r?'♥':i===state.active?'✦':'·'));return b}));
  $('candidates').replaceChildren(...(pool.length?candidateRows(pool):[Object.assign(document.createElement('p'),{textContent:state.connecting?'방송에 연결하고 있어요…':state.collecting?'채팅을 기다리고 있어요…':'아직 모인 채팅이 없어요 ♡'})]));
  if(modalOpen&&!state.rolling){$('modalChat').replaceChildren(...(pool.length?candidateRows(pool,false):[Object.assign(document.createElement('p'),{textContent:state.connecting?'방송에 연결하고 있어요…':'채팅을 기다리고 있어요…'})]));$('modalChat').scrollTop=$('modalChat').scrollHeight}
@@ -80,6 +89,6 @@ function render(){
 }
 function tick(){const left=Math.max(0,Math.ceil((state.until-Date.now())/1000));if(modalOpen){$('modalSeconds').textContent=state.connecting?'…':String(left).padStart(2,'0');$('countdown').style.setProperty('--progress',state.collecting?left/30:1)}}
 
-$('draw').onclick=startCollection;$('reroll').onclick=spin;$('next').onclick=()=>{const n=state.results.findIndex((r,i)=>!r&&i>state.active);state.active=n<0?state.results.findIndex(r=>!r):n;render()};$('resetAll').onclick=()=>reset(true);$('clear').onclick=()=>{state.pools[state.active].clear();state.results[state.active]=null;render()};$('closeModal').onclick=closeModal;$('modalBackdrop').onclick=closeModal;
+$('connect').onclick=connectBroadcast;$('streamer').addEventListener('input',()=>{if(state.streamerName){state.streamerName='';state.connectedStreamer='';state.status='주소가 바뀌었어요. 다시 방송에 연결해 주세요.';render()}});$('draw').onclick=startCollection;$('reroll').onclick=spin;$('next').onclick=()=>{const n=state.results.findIndex((r,i)=>!r&&i>state.active);state.active=n<0?state.results.findIndex(r=>!r):n;render()};$('resetAll').onclick=()=>reset(true);$('clear').onclick=()=>{state.pools[state.active].clear();state.results[state.active]=null;render()};$('closeModal').onclick=closeModal;$('modalBackdrop').onclick=closeModal;
 $('demo').onclick=()=>{const i=state.active;state.pools[i].clear();sample[i].forEach((text,j)=>state.pools[i].set('demo-'+i+'-'+j,{id:'demo-'+i+'-'+j,name:'테스트 '+(j+1),text}));state.results[i]=null;state.status='테스트 후보로 룰렛을 시작했어요.';openModal('reroll');spin()};
 syncChannel&&(syncChannel.onmessage=event=>applySnapshot(event.data));addEventListener('storage',event=>{if(event.key===syncKey&&event.newValue)applySnapshot(event.newValue)});if(isOverlay){const saved=localStorage.getItem(syncKey);if(saved)applySnapshot(saved)}setInterval(tick,100);render();
