@@ -1,45 +1,34 @@
 <!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="채팅으로 완성하는 환생 조건 룰렛">
-  <title>환생 룰렛</title>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="SOOP 채팅으로 완성하는 환생 조건 룰렛"><title>몽글몽글 환생 룰렛</title>
   <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="vercel.css">
 </head>
 <body>
+  <div class="petal petal-a">✿</div><div class="petal petal-b">✦</div><div class="petal petal-c">♡</div>
   <main>
-    <header><div><b>✦ 환생 룰렛</b><small>REBIRTH RANDOMIZER</small></div><div class="header-meta"><span id="streamerName">방송 연결 대기</span><span id="round">ROUND 01</span><a class="broadcast-link" href="?overlay=1" target="_blank" rel="noopener">방송용 화면 ↗</a></div></header>
-    <section class="intro"><div><p>NEXT LIFE GENERATOR</p><h1>다음 생은,<br><em>여러분 손에.</em></h1></div><button id="resetAll" class="ghost">전체 초기화</button></section>
+    <header><a class="brand" href="./"><span>♥</span><b>환생 룰렛</b><small>REBIRTH RANDOMIZER</small></a><div class="header-meta"><span id="streamerName">방송 연결 대기</span><span id="round">ROUND 01</span><a class="broadcast-link" href="?overlay=1" target="_blank" rel="noopener">방송용 화면 ↗</a></div></header>
+    <section class="intro"><div><p>MY SWEET NEXT LIFE</p><h1>다음 생은 어떤 모습일까? <span>♥</span></h1><p class="intro-copy">시청자들의 채팅으로 하나씩 완성하는 나의 새로운 운명</p></div><button id="resetAll" class="ghost">↻ 전체 초기화</button></section>
     <div class="layout">
       <section class="game">
-        <div class="game-head"><b>나의 환생 조건</b><span id="progress">0 / 5 확정</span></div>
+        <div class="game-head"><div><span class="eyebrow">DESTINY CARD</span><b>나의 환생 조건</b></div><span id="progress">0 / 5 완성</span></div>
         <div id="cards"></div>
-        <div class="roulette">
-          <div class="roulette-head"><span id="reelLabel">나라 · 채팅 룰렛</span><span id="timer">30초 수집 → 뽑기</span></div>
-          <div class="reel-window"><span class="pointer">▶</span><div id="reelTrack"><div class="reel-item">채팅을 수집해 주세요</div></div></div>
-        </div>
-        <div class="actions"><button id="draw" class="primary">✦ 뽑기</button><button id="reroll">↻ 리롤</button><button id="next">다음 항목 →</button></div>
+        <div class="actions"><button id="draw" class="primary">♥ 채팅 모아서 뽑기</button><button id="reroll">↻ 다시 뽑기</button><button id="next">다음 항목 →</button></div>
       </section>
       <aside>
-        <section class="panel connection-panel">
-          <div class="panel-head"><b>SOOP 채팅 수집</b><span id="collectState">대기</span></div>
-          <label class="field-label" for="streamer">방송국 ID 또는 라이브 주소</label>
-          <input id="streamer" class="streamer" placeholder="https://play.sooplive.com/아이디/방송번호" autocomplete="off">
-          <button id="collect" class="collect">30초 자동 수집</button>
-          <p id="status" class="hint" role="status">방송 주소를 입력한 뒤 수집을 시작하세요.</p>
-        </section>
-        <section class="panel list-panel candidate-panel">
-          <div class="panel-head"><b>후보 <span id="count">0</span></b><button id="clear" class="link">비우기</button></div>
-          <div id="candidates" class="candidates"><p>수집을 시작해 주세요.</p></div>
-        </section>
-        <button id="demo" class="wide setup-only">테스트 후보 넣기</button>
-        <p class="footnote setup-only">SOOP 연결이 어려울 때 테스트 후보로 룰렛 동작을 확인할 수 있습니다.</p>
+        <section class="panel connection-panel"><div class="panel-head"><b>방송 연결</b><span id="collectState">대기</span></div><label class="field-label" for="streamer">SOOP 방송국 ID 또는 라이브 주소</label><input id="streamer" class="streamer" placeholder="https://play.sooplive.com/아이디/방송번호" autocomplete="off"><p id="status" class="hint" role="status">주소를 입력하고 뽑기를 누르면 30초 동안 채팅을 모아요.</p></section>
+        <section class="panel list-panel candidate-panel"><div class="panel-head"><b>모인 채팅 <span id="count">0</span></b><button id="clear" class="link">비우기</button></div><div id="candidates" class="candidates"><p>아직 모인 채팅이 없어요 ♡</p></div></section>
+        <button id="demo" class="wide setup-only">테스트 후보 채우기</button>
       </aside>
     </div>
   </main>
-  <div id="toast" role="alert"></div>
-  <script src="app.js"></script>
-</body>
-</html>
+  <div id="drawModal" class="modal" aria-hidden="true"><div id="modalBackdrop" class="modal-backdrop"></div><section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <button id="closeModal" class="modal-close" aria-label="닫기">×</button><div class="modal-kicker" id="modalKicker">CHAT COLLECTION</div><h2 id="modalTitle">나라 후보를 모으는 중이에요</h2><p id="modalSubtitle">시청자들의 채팅이 실시간으로 도착하고 있어요!</p>
+    <div class="countdown-wrap"><div class="countdown" id="countdown"><strong id="modalSeconds">30</strong><small>SECONDS</small></div><div class="sparkles">✦　♡　✦</div></div>
+    <div id="modalChat" class="modal-chat"><p>방송에 연결하고 있어요…</p></div>
+    <div id="modalRoulette" class="modal-roulette"><span class="roulette-pointer">▼</span><div class="reel-window"><div id="reelTrack"><div class="reel-item">운명을 기다리는 중…</div></div></div></div>
+    <div id="winner" class="winner" aria-live="polite"></div><p id="modalStatus" class="modal-status">SOOP 채팅방을 확인하고 있어요.</p>
+  </section></div>
+  <div id="toast" role="alert"></div><script src="app.js"></script>
+</body></html>
