@@ -15,7 +15,7 @@
         <div class="game-head"><div><span class="eyebrow">DESTINY CARD</span><b>나의 환생 조건</b></div><span id="progress">0 / 11 완성</span></div>
         <details class="condition-setup" open><summary>환생 조건 설정 <small>항목 ON/OFF · 직접 답변 추가</small></summary><div id="conditionSettings" class="condition-settings"></div><form id="addConditionForm" class="add-condition"><input id="newCondition" maxlength="24" placeholder="새 환생 조건 항목"><button type="submit">＋ 항목 추가</button></form></details>
         <div id="cards"></div>
-        <div class="actions"><button id="draw" class="primary">♥ 뽑기</button><button id="reroll">↻ 다시 뽑기</button><button id="next">다음 항목 →</button></div>
+        <div class="actions"><button id="draw" class="primary">♥ 뽑기</button><button id="next">다음 항목 →</button></div>
       </section>
       <aside>
         <section class="panel connection-panel"><div class="panel-head"><div class="connection-title"><b>방송 연결</b><span id="collectState">대기</span></div><button id="connect" class="connect-button">방송 연결</button></div><label class="field-label" for="streamer">SOOP 방송국 ID 또는 라이브 주소</label><input id="streamer" class="streamer" placeholder="https://play.sooplive.com/아이디/방송번호" autocomplete="off"><fieldset class="filter-options"><legend>채팅 시작 문자 <small>선택하지 않으면 전체 수집</small></legend><label><input class="prefix-filter" type="checkbox" value="!"><span>!</span></label><label><input class="prefix-filter" type="checkbox" value="@"><span>@</span></label><label><input class="prefix-filter" type="checkbox" value="#"><span>#</span></label><label><input class="prefix-filter" type="checkbox" value="?"><span>?</span></label></fieldset><div class="connection-footer"><p id="status" class="hint" role="status">주소를 입력하고 방송에 연결해 주세요.</p><button id="collect" class="collect-button">채팅 수집</button></div></section>
@@ -29,7 +29,7 @@
     <div class="countdown-wrap"><div class="countdown" id="countdown"><strong id="modalSeconds">30</strong><small>SECONDS</small></div><div class="sparkles">✦　♡　✦</div></div>
     <div id="modalChat" class="modal-chat"><p>방송에 연결하고 있어요…</p></div>
     <div id="modalRoulette" class="modal-roulette"><span class="roulette-pointer">▼</span><div class="reel-window"><div id="reelTrack"><div class="reel-item">운명을 기다리는 중…</div></div></div></div>
-    <div id="winner" class="winner" aria-live="polite"></div><p id="modalStatus" class="modal-status">SOOP 채팅방을 확인하고 있어요.</p>
+    <div id="winner" class="winner" aria-live="polite"></div><div id="modalActions" class="modal-actions"><button id="modalReroll">↻ 리롤</button><button id="confirmWinner" class="confirm-winner">♥ 확정</button></div><p id="modalStatus" class="modal-status">SOOP 채팅방을 확인하고 있어요.</p>
   </section></div>
-  <div id="toast" role="alert"></div><script src="app.js?v=7"></script>
+  <div id="toast" role="alert"></div><script src="app.js?v=10"></script>
 </body></html>
