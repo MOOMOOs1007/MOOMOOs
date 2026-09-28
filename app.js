@@ -2,7 +2,7 @@ let fields=['나라','성별','외모/신체','가정 환경','재산','재능',
 const state={active:0,round:1,results:Array(fields.length).fill(null),pools:Array.from({length:fields.length},()=>new Map()),enabled:Array(fields.length).fill(true),manualAnswers:Array(fields.length).fill(''),manualConfirmed:Array(fields.length).fill(false),checking:false,connecting:false,collecting:false,until:0,rolling:false,modal:null,spin:null,streamerName:'',connectedStreamer:'',status:'주소를 입력하고 방송에 연결해 주세요.'};
 const $=id=>document.getElementById(id);
 const isOverlay=false;
-let controller,drawTimer,reelFrame,toastTimer,generation=0,chatSequence=0,modalOpen=false,pendingWinner=null,pendingIndex=-1,lastOverlaySpin='';
+let controller,drawTimer,reelFrame,toastTimer,generation=0,chatSequence=0,modalOpen=false,pendingWinner=null,pendingIndex=-1,lastOverlaySpin='',lifeGenerating=false;
 const sample=[
  ['대한민국','캐나다','프랑스','뉴질랜드','아이슬란드','브라질','스위스','이름 모를 무인도','달나라 제3구역','고양이 왕국','편의점 냉동고 안','와이파이가 한 칸만 잡히는 나라'],
  ['여성','남성','논바이너리','성별 없는 정령','필요할 때마다 바뀜','본인도 아직 모름','공식 서류마다 다르게 적힘','로봇이라 해당 없음','고양이가 정해 줌','주말에만 다른 성별','관찰하는 순간 결정됨','비밀로 유지됨'],
@@ -18,6 +18,18 @@ const sample=[
 
 function publish(){}
 function toast(text){$('toast').textContent=text;$('toast').style.display='block';clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').style.display='none',3000)}
+function openLifeModal(){$('lifeModal').classList.add('open');$('lifeModal').setAttribute('aria-hidden','false');document.body.style.overflow='hidden'}
+function closeLifeModal(){if(lifeGenerating)return;$('lifeModal').classList.remove('open');$('lifeModal').setAttribute('aria-hidden','true');document.body.style.overflow=''}
+async function generateLife(){
+ const conditions=fields.map((label,i)=>state.enabled[i]&&state.results[i]?{label,value:state.results[i].text}:null).filter(Boolean);const required=state.enabled.filter(Boolean).length;
+ if(conditions.length!==required)return toast('ON 상태인 모든 환생 조건을 먼저 확정해 주세요.');
+ openLifeModal();lifeGenerating=true;$('lifeLoading').style.display='flex';$('lifeResult').classList.remove('show');$('lifeError').classList.remove('show');$('lifeError').textContent='';$('regenerateLife').classList.remove('show');$('closeLife').disabled=true;render();
+ try{
+  const response=await fetch('/api/life',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({conditions})});const data=await response.json();if(!response.ok)throw Error(data.error||'일대기 생성에 실패했습니다.');
+  $('lifeImage').src=data.image;$('lifeStory').textContent=data.story;$('lifeLoading').style.display='none';$('lifeResult').classList.add('show');$('regenerateLife').classList.add('show');
+ }catch(error){$('lifeLoading').style.display='none';$('lifeError').textContent=error.message;$('lifeError').classList.add('show');$('regenerateLife').classList.add('show')}
+ finally{lifeGenerating=false;$('closeLife').disabled=false;render()}
+}
 function openConnectionModal(){$('connectionModal').classList.add('open');$('connectionModal').setAttribute('aria-hidden','false');document.body.style.overflow='hidden';setTimeout(()=>$('streamer').focus(),0)}
 function closeConnectionModal(){if(state.checking)return;$('connectionModal').classList.remove('open');$('connectionModal').setAttribute('aria-hidden','true');if(!modalOpen)document.body.style.overflow=''}
 
@@ -120,14 +132,14 @@ function renderCards(busy){
 function render(){
  const pool=[...state.pools[state.active].values()],result=state.results[state.active],enabledCount=state.enabled.filter(Boolean).length,done=state.results.filter((r,i)=>r&&state.enabled[i]).length,busy=state.checking||state.connecting||state.collecting||state.rolling;
  $('round').textContent='ROUND '+String(state.round).padStart(2,'0');$('streamerName').textContent=state.streamerName?state.streamerName+' 방송 연결됨':'방송 연결 대기';$('progress').textContent=done+' / '+enabledCount+' 완성';$('status').textContent=state.status;$('collectState').textContent=state.checking?'확인 중':state.connecting?'채팅 연결 중':state.collecting?'수집 중':state.rolling?'추첨 중':state.streamerName?'연결됨':'대기';
- $('openConnection').disabled=busy;$('openConnection').classList.toggle('connected',!!state.streamerName);$('connect').disabled=busy;$('connect').textContent=state.checking?'확인 중…':state.streamerName?'다시 연결':'방송 연결';$('connect').classList.toggle('connected',!!state.streamerName&&!busy);$('closeConnection').disabled=state.checking;$('cancelCollectionButton').classList.toggle('show',state.connecting||state.collecting);$('startRoulette').disabled=busy||!pool.length;$('modalReroll').disabled=state.rolling||!pool.length;$('confirmWinner').disabled=state.rolling||!pendingWinner;$('demo').disabled=busy;
+ $('openConnection').disabled=busy||lifeGenerating;$('openConnection').classList.toggle('connected',!!state.streamerName);$('connect').disabled=busy;$('connect').textContent=state.checking?'확인 중…':state.streamerName?'다시 연결':'방송 연결';$('connect').classList.toggle('connected',!!state.streamerName&&!busy);$('closeConnection').disabled=state.checking;$('cancelCollectionButton').classList.toggle('show',state.connecting||state.collecting);$('startRoulette').disabled=busy||!pool.length;$('modalReroll').disabled=state.rolling||!pool.length;$('confirmWinner').disabled=state.rolling||!pendingWinner;$('demo').disabled=busy||lifeGenerating;$('generateLife').disabled=busy||lifeGenerating||enabledCount<1||done!==enabledCount;$('generateLife').textContent=lifeGenerating?'생성 중…':'✦ 무료 환생 일대기 만들기';
  renderCards(busy);
  if(modalOpen&&!state.rolling){$('modalChat').replaceChildren(...(pool.length?candidateRows(pool,false):[Object.assign(document.createElement('p'),{textContent:state.connecting?'방송에 연결하고 있어요…':'채팅을 기다리고 있어요…'})]));$('modalChat').scrollTop=0}
  $('closeModal').disabled=busy;if(modalOpen&&!state.rolling&&!$('winner').classList.contains('show'))$('modalStatus').textContent=state.status;tick();publish();syncOverlayModal();
 }
 function tick(){const left=Math.max(0,Math.ceil((state.until-Date.now())/1000));if(state.collecting)$('collectState').textContent=`수집 중 · ${left}초`;if(modalOpen){$('modalSeconds').textContent=state.connecting?'…':String(left).padStart(2,'0');$('countdown').style.setProperty('--progress',state.collecting?left/30:1)}}
 
-$('openConnection').onclick=openConnectionModal;$('closeConnection').onclick=closeConnectionModal;$('connectionBackdrop').onclick=closeConnectionModal;$('connect').onclick=connectBroadcast;$('streamer').addEventListener('input',()=>{if(state.streamerName){state.streamerName='';state.connectedStreamer='';state.status='주소가 바뀌었어요. 다시 방송에 연결해 주세요.';render()}});$('cancelCollectionButton').onclick=cancelActiveCollection;$('startRoulette').onclick=spin;$('modalReroll').onclick=spin;$('confirmWinner').onclick=confirmResult;$('resetAll').onclick=()=>reset(true);$('closeModal').onclick=closeModal;$('modalBackdrop').onclick=closeModal;
+$('openConnection').onclick=openConnectionModal;$('closeConnection').onclick=closeConnectionModal;$('connectionBackdrop').onclick=closeConnectionModal;$('connect').onclick=connectBroadcast;$('streamer').addEventListener('input',()=>{if(state.streamerName){state.streamerName='';state.connectedStreamer='';state.status='주소가 바뀌었어요. 다시 방송에 연결해 주세요.';render()}});$('cancelCollectionButton').onclick=cancelActiveCollection;$('startRoulette').onclick=spin;$('modalReroll').onclick=spin;$('confirmWinner').onclick=confirmResult;$('generateLife').onclick=generateLife;$('regenerateLife').onclick=generateLife;$('closeLife').onclick=closeLifeModal;$('lifeBackdrop').onclick=closeLifeModal;$('resetAll').onclick=()=>reset(true);$('closeModal').onclick=closeModal;$('modalBackdrop').onclick=closeModal;
 $('addConditionForm').onsubmit=event=>{event.preventDefault();const name=$('newCondition').value.trim();if(!name)return toast('추가할 항목 이름을 입력해 주세요.');if(fields.length>=30)return toast('항목은 최대 30개까지 추가할 수 있어요.');fields.push(name);state.results.push(null);state.pools.push(new Map());state.enabled.push(true);state.manualAnswers.push('');state.manualConfirmed.push(false);$('newCondition').value='';state.status=`'${name}' 항목을 추가했어요.`;render()};
 $('demo').onclick=()=>{const i=state.active;state.pools[i].clear();const list=sample[i]||['행운 가득','평범하지만 행복','상상도 못한 결과'];list.forEach((text,j)=>state.pools[i].set('demo-'+i+'-'+j,{id:'demo-'+i+'-'+j,name:'테스트 '+(j+1),text}));const manual=state.manualAnswers[i].trim();if(manual&&state.manualConfirmed[i])state.pools[i].set('manual-'+i,{id:'manual-'+i,name:'직접 추가',text:manual});state.results[i]=null;state.status='테스트 후보가 준비됐어요. 룰렛 돌리기를 눌러 주세요.';showSpinReady(i)};
 setInterval(tick,100);render();

@@ -1,7 +1,10 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": true,
-  "functions": { "api/chat.js": { "maxDuration": 45 } },
+  "functions": {
+    "api/chat.js": { "maxDuration": 45 },
+    "api/life.js": { "maxDuration": 10 }
+  },
   "headers": [
     { "source": "/api/(.*)", "headers": [
       { "key": "Cache-Control", "value": "no-store" },
