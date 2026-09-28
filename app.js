@@ -18,6 +18,8 @@ const sample=[
 
 function publish(){}
 function toast(text){$('toast').textContent=text;$('toast').style.display='block';clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').style.display='none',3000)}
+function openConnectionModal(){$('connectionModal').classList.add('open');$('connectionModal').setAttribute('aria-hidden','false');document.body.style.overflow='hidden';setTimeout(()=>$('streamer').focus(),0)}
+function closeConnectionModal(){if(state.checking)return;$('connectionModal').classList.remove('open');$('connectionModal').setAttribute('aria-hidden','true');if(!modalOpen)document.body.style.overflow=''}
 
 function openModal(mode='collect'){
  if(isOverlay)return;modalOpen=true;$('drawModal').classList.add('open');$('drawModal').setAttribute('aria-hidden','false');document.body.style.overflow='hidden';
@@ -43,7 +45,7 @@ async function connectBroadcast(){
  try{
   const response=await fetch('/api/info',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({streamer:value})});
   const data=await response.json();if(!response.ok)throw Error(data.error||'방송 연결에 실패했습니다.');
-  state.streamerName=data.streamerName;state.connectedStreamer=data.streamer;state.status=`${data.streamerName} 방송에 연결됐어요. 채팅 수집을 눌러 주세요.`;toast(`${data.streamerName} 방송 연결 완료!`);
+  state.streamerName=data.streamerName;state.connectedStreamer=data.streamer;state.status=`${data.streamerName} 방송에 연결됐어요.`;state.checking=false;toast(`${data.streamerName} 방송 연결 완료!`);closeConnectionModal();
  }catch(error){state.status=error.message;toast(error.message)}finally{state.checking=false;render()}
 }
 
@@ -72,6 +74,7 @@ async function startCollection(index=state.active){
 }
 
 function cancelCollection(){generation++;controller?.abort();controller=null;state.connecting=false;state.collecting=false;state.until=0}
+function cancelActiveCollection(){if(!state.connecting&&!state.collecting)return;cancelCollection();state.status='채팅 수집을 취소했어요.';state.modal=null;closeModal();render();toast('채팅 수집을 취소했어요.')}
 function reset(all=true){cancelCollection();clearTimeout(drawTimer);cancelAnimationFrame(reelFrame);const first=state.enabled.findIndex(Boolean);Object.assign(state,{active:first<0?0:first,round:all?1:state.round+1,results:Array(fields.length).fill(null),pools:Array.from({length:fields.length},()=>new Map()),manualConfirmed:Array(fields.length).fill(false),modal:null,spin:null,rolling:false,status:'초기화했어요. 항목 설정과 방송 주소는 그대로 남아 있어요.'});$('reelTrack').style.transform='';closeModal();render()}
 function random(pool){const max=0x100000000-(0x100000000%pool.length);let n;do n=crypto.getRandomValues(new Uint32Array(1))[0];while(n>=max);return pool[n%pool.length]}
 
@@ -117,14 +120,14 @@ function renderCards(busy){
 function render(){
  const pool=[...state.pools[state.active].values()],result=state.results[state.active],enabledCount=state.enabled.filter(Boolean).length,done=state.results.filter((r,i)=>r&&state.enabled[i]).length,busy=state.checking||state.connecting||state.collecting||state.rolling;
  $('round').textContent='ROUND '+String(state.round).padStart(2,'0');$('streamerName').textContent=state.streamerName?state.streamerName+' 방송 연결됨':'방송 연결 대기';$('progress').textContent=done+' / '+enabledCount+' 완성';$('status').textContent=state.status;$('collectState').textContent=state.checking?'확인 중':state.connecting?'채팅 연결 중':state.collecting?'수집 중':state.rolling?'추첨 중':state.streamerName?'연결됨':'대기';
- $('connect').disabled=busy;$('connect').textContent=state.checking?'확인 중…':state.streamerName?'✓ 연결됨':'방송 연결';$('connect').classList.toggle('connected',!!state.streamerName&&!busy);$('startRoulette').disabled=busy||!pool.length;$('modalReroll').disabled=state.rolling||!pool.length;$('confirmWinner').disabled=state.rolling||!pendingWinner;$('demo').disabled=busy;
+ $('openConnection').disabled=busy;$('openConnection').classList.toggle('connected',!!state.streamerName);$('connect').disabled=busy;$('connect').textContent=state.checking?'확인 중…':state.streamerName?'다시 연결':'방송 연결';$('connect').classList.toggle('connected',!!state.streamerName&&!busy);$('closeConnection').disabled=state.checking;$('cancelCollectionButton').classList.toggle('show',state.connecting||state.collecting);$('startRoulette').disabled=busy||!pool.length;$('modalReroll').disabled=state.rolling||!pool.length;$('confirmWinner').disabled=state.rolling||!pendingWinner;$('demo').disabled=busy;
  renderCards(busy);
  if(modalOpen&&!state.rolling){$('modalChat').replaceChildren(...(pool.length?candidateRows(pool,false):[Object.assign(document.createElement('p'),{textContent:state.connecting?'방송에 연결하고 있어요…':'채팅을 기다리고 있어요…'})]));$('modalChat').scrollTop=0}
  $('closeModal').disabled=busy;if(modalOpen&&!state.rolling&&!$('winner').classList.contains('show'))$('modalStatus').textContent=state.status;tick();publish();syncOverlayModal();
 }
 function tick(){const left=Math.max(0,Math.ceil((state.until-Date.now())/1000));if(state.collecting)$('collectState').textContent=`수집 중 · ${left}초`;if(modalOpen){$('modalSeconds').textContent=state.connecting?'…':String(left).padStart(2,'0');$('countdown').style.setProperty('--progress',state.collecting?left/30:1)}}
 
-$('connect').onclick=connectBroadcast;$('streamer').addEventListener('input',()=>{if(state.streamerName){state.streamerName='';state.connectedStreamer='';state.status='주소가 바뀌었어요. 다시 방송에 연결해 주세요.';render()}});$('startRoulette').onclick=spin;$('modalReroll').onclick=spin;$('confirmWinner').onclick=confirmResult;$('resetAll').onclick=()=>reset(true);$('closeModal').onclick=closeModal;$('modalBackdrop').onclick=closeModal;
+$('openConnection').onclick=openConnectionModal;$('closeConnection').onclick=closeConnectionModal;$('connectionBackdrop').onclick=closeConnectionModal;$('connect').onclick=connectBroadcast;$('streamer').addEventListener('input',()=>{if(state.streamerName){state.streamerName='';state.connectedStreamer='';state.status='주소가 바뀌었어요. 다시 방송에 연결해 주세요.';render()}});$('cancelCollectionButton').onclick=cancelActiveCollection;$('startRoulette').onclick=spin;$('modalReroll').onclick=spin;$('confirmWinner').onclick=confirmResult;$('resetAll').onclick=()=>reset(true);$('closeModal').onclick=closeModal;$('modalBackdrop').onclick=closeModal;
 $('addConditionForm').onsubmit=event=>{event.preventDefault();const name=$('newCondition').value.trim();if(!name)return toast('추가할 항목 이름을 입력해 주세요.');if(fields.length>=30)return toast('항목은 최대 30개까지 추가할 수 있어요.');fields.push(name);state.results.push(null);state.pools.push(new Map());state.enabled.push(true);state.manualAnswers.push('');state.manualConfirmed.push(false);$('newCondition').value='';state.status=`'${name}' 항목을 추가했어요.`;render()};
 $('demo').onclick=()=>{const i=state.active;state.pools[i].clear();const list=sample[i]||['행운 가득','평범하지만 행복','상상도 못한 결과'];list.forEach((text,j)=>state.pools[i].set('demo-'+i+'-'+j,{id:'demo-'+i+'-'+j,name:'테스트 '+(j+1),text}));const manual=state.manualAnswers[i].trim();if(manual&&state.manualConfirmed[i])state.pools[i].set('manual-'+i,{id:'manual-'+i,name:'직접 추가',text:manual});state.results[i]=null;state.status='테스트 후보가 준비됐어요. 룰렛 돌리기를 눌러 주세요.';showSpinReady(i)};
 setInterval(tick,100);render();
