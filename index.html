@@ -12,7 +12,7 @@
     <section class="intro"><div><p>MY SWEET NEXT LIFE</p><h1>다음 생은 어떤 모습일까? <span>♥</span></h1><p class="intro-copy">시청자들의 채팅으로 하나씩 완성하는 나의 새로운 운명</p></div><button id="resetAll" class="ghost">↻ 전체 초기화</button></section>
     <div class="layout">
       <section class="game">
-        <div class="game-head"><div><span class="eyebrow">DESTINY CARD</span><b>나의 환생 조건</b></div><div class="game-head-actions"><button id="generateLife" class="ai-life-button setup-only" disabled>✦ 무료 환생 일대기 만들기</button><button id="demo" class="demo-button setup-only">테스트 후보 채우기</button><span id="progress">0 / 10 완성</span></div></div>
+        <div class="game-head"><div class="game-head-main"><div><span class="eyebrow">DESTINY CARD</span><b>나의 환생 조건</b></div><button id="generateLife" class="ai-life-button setup-only" disabled>✦ 이번 생 살아보기</button></div><div class="game-head-actions"><button id="demo" class="demo-button setup-only">테스트</button><span id="progress">0 / 10 완성</span></div></div>
         <form id="addConditionForm" class="add-condition setup-only"><input id="newCondition" maxlength="24" placeholder="새 환생 조건 항목"><button type="submit">＋ 항목 추가</button></form>
         <div id="cards"></div>
       </section>
@@ -33,9 +33,9 @@
     <div id="winner" class="winner" aria-live="polite"></div><div id="modalActions" class="modal-actions"><button id="modalReroll">↻ 리롤</button><button id="confirmWinner" class="confirm-winner">♥ 확정</button></div><p id="modalStatus" class="modal-status">SOOP 채팅방을 확인하고 있어요.</p>
   </section></div>
   <div id="lifeModal" class="modal life-modal" aria-hidden="true"><div id="lifeBackdrop" class="modal-backdrop"></div><section class="modal-card life-card" role="dialog" aria-modal="true" aria-labelledby="lifeTitle">
-    <button id="closeLife" class="modal-close" aria-label="닫기">×</button><div class="modal-kicker">FREE REBIRTH STORY</div><h2 id="lifeTitle">나의 환생 일대기</h2><p id="lifeSubtitle">비용 없이 완성된 조건으로 새로운 삶을 만들어요.</p>
-    <div id="lifeLoading" class="life-loading"><div class="ai-orbit">♥</div><strong>새로운 인생을 쓰고 있어요</strong><span>일대기와 이미지 카드를 함께 만드는 중입니다.</span></div>
-    <div id="lifeResult" class="life-result"><img id="lifeImage" alt="환생 조건으로 만든 이미지 카드"><article id="lifeStory"></article></div>
+    <button id="closeLife" class="modal-close" aria-label="닫기">×</button><div class="modal-kicker">YOUR NEXT LIFE</div><h2 id="lifeTitle">이번 생 살아보기</h2><p id="lifeSubtitle">완성된 운명이 한 편의 이야기로 이어집니다.</p>
+    <div id="lifeLoading" class="life-loading"><div class="ai-orbit">♥</div><strong>새로운 인생을 쓰고 있어요</strong><span>선택된 조건들을 엮어 일대기를 만드는 중입니다.</span></div>
+    <div id="lifeResult" class="life-result"><article id="lifeStory"></article></div>
     <div id="lifeError" class="life-error" role="alert"></div><button id="regenerateLife" class="start-roulette">↻ 다시 생성하기</button>
   </section></div>
   <div id="toast" role="alert"></div><script src="app.js?v=19"></script>
