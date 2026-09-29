@@ -3,12 +3,21 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="description" content="SOOP 채팅으로 완성하는 환생 조건 룰렛"><title>몽글몽글 환생 룰렛</title>
-  <link rel="stylesheet" href="style.css?v=4">
+  <link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
   <div class="petal petal-a">✿</div><div class="petal petal-b">✦</div><div class="petal petal-c">♡</div>
-  <main>
-    <header><a class="brand" href="./"><span>♥</span><b>환생 룰렛</b><small>REBIRTH RANDOMIZER</small></a><div class="header-meta"><button id="openConnection" class="connection-trigger"><span id="streamerName">방송 연결 대기</span></button><span id="round">ROUND 01</span></div></header>
+  <main id="themeHub" class="theme-hub">
+    <div class="dimension-grid" aria-hidden="true"></div><div class="portal portal-a" aria-hidden="true"></div><div class="portal portal-b" aria-hidden="true"></div>
+    <header class="theme-hub-header"><a class="brand" href="./"><span>◇</span><b>차원 환승 센터</b><small>DIMENSION TRANSFER TERMINAL</small></a><div class="terminal-status"><i></i><span>GATE NETWORK ONLINE</span></div></header>
+    <section class="theme-hero"><p>INTERDIMENSIONAL DEPARTURES</p><h1>다음 차원으로 가는<br><span>게이트를 선택하세요</span></h1><p>시청자 채팅으로 운명을 정하고, 선택한 세계의 이야기를 직접 통과하세요.</p><div class="route-line"><span>현재 위치</span><b>환승 중앙홀</b><i></i><span>목적지 선택</span></div></section>
+    <section class="theme-grid" aria-label="콘텐츠 테마 목록">
+      <a class="theme-card zombie-theme" href="https://zombie-survival-roulette-smoky.vercel.app/"><span class="theme-number">GATE 01</span><div class="theme-symbol"><i></i><span>☣</span></div><div><small>LINE Z · Z-DAY SURVIVAL</small><h2>좀비 세계에서 살아남기</h2><p>감염 사태가 발생한 격리 차원. 시청자가 만든 생존 조건으로 열흘을 버티세요.</p><strong>탑승 게이트 열기 →</strong></div></a>
+      <button id="selectRebirthTheme" class="theme-card reincarnation-theme" type="button"><span class="theme-number">GATE 02</span><div class="theme-symbol"><i></i><span>∞</span></div><div><small>LINE R · REINCARNATION ROULETTE</small><h2>환생 룰렛</h2><p>시청자들이 정한 조건을 따라 새로운 삶이 시작되는 환생 차원입니다.</p><strong>탑승 게이트 열기 →</strong></div></button>
+    </section>
+  </main>
+  <main id="rebirthApp" class="theme-app-hidden">
+    <header><div class="brand-area"><a class="brand" href="./"><span>♥</span><b>환생 룰렛</b><small>REBIRTH RANDOMIZER</small></a><a class="theme-select" href="https://zombie-survival-roulette-smoky.vercel.app/">← 테마 선택</a></div><div class="header-meta"><button id="openConnection" class="connection-trigger"><span id="streamerName">방송 연결 대기</span></button><span id="round">ROUND 01</span></div></header>
     <section class="intro"><div><p>MY SWEET NEXT LIFE</p><h1>다음 생은 어떤 모습일까? <span>♥</span></h1><p class="intro-copy">시청자들의 채팅으로 하나씩 완성하는 나의 새로운 운명</p></div><button id="resetAll" class="ghost">↻ 전체 초기화</button></section>
     <div class="layout">
       <section class="game">
@@ -38,5 +47,5 @@
     <div id="lifeResult" class="life-result"><article id="lifeStory"></article></div>
     <div id="lifeError" class="life-error" role="alert"></div><button id="regenerateLife" class="start-roulette">↻ 다시 생성하기</button>
   </section></div>
-  <div id="toast" role="alert"></div><script src="app.js?v=19"></script>
+  <div id="toast" role="alert"></div><script src="app.js?v=19"></script><script src="theme-hub.js?v=1"></script>
 </body></html>
